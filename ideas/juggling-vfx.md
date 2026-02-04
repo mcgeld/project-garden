@@ -1,37 +1,42 @@
 ---
-id: juggling-vfx
-title: Sync-Juggling VFX System
-status: seed            # options: seed, active, dormant, archived
-tags: [python, opencv, esp32, hardware, vfx]
-created: 2026-01-20
-budget_est: $50
+id: synch-juggling-vfx
+title: Music Synced Juggling Balls
+status: seed
+tags: [esp32, esp-now, led, hardware, python]
+created: 2026-02-04
+budget_est: $100 (Prototype Phase)
 feasibility: High
 ---
 
 # 💡 Vision
-A juggling system where balls light up in perfect synchronization with a music track. 
-**Phase 1 (Software):** A desktop app that uses Computer Vision to overlay light effects on a video of me juggling "proxy" balls.
-**Phase 2 (Hardware):** Physical balls with ESP32-C3 chips that receive time-code data via ESP-NOW.
+A set of juggling balls that synchronize lighting patterns to music.
+* **The Problem:** Existing props rely on rigid, pre-set patterns or unreliable Bluetooth.
+* **The Solution:** A "Timecode" system where a PC broadcasts the song position via ESP-NOW to all balls simultaneously.
+* **The workflow:** I load an MP3 into a custom desktop app -> Design the light show -> "Compile" the show to the balls -> Perform.
 
 # 🔬 Research & Tech Stack
+### The Architecture
+* **Topology:** Bridge Mode. PC -> USB Serial -> "Commander" ESP32 -> ESP-NOW Broadcast -> Juggling Balls.
+* **Protocol:** **ESP-NOW**. Connectionless Wi-Fi. Extremely low latency (<10ms) and high reliability compared to BLE.
 
-## Phase 1: The "Studio" (MVP)
-* **Language:** Python
-* **Core Lib:** OpenCV (`cv2`)
-* **Logic:** * Track 3 distinct colored balls (Red, Green, Blue) in an MP4 video.
-    * Map their (x,y) coordinates to a timeline.
-    * Render "Glow" effects over the coordinates based on a JSON light script.
-* **Advantage:** Zero cost. Allows perfect syncing of routine to music before hardware exists.
+### The Hardware BOM (Bill of Materials)
+* **The Brain (Ball):** **Seeed Studio XIAO ESP32-C3** (or "SuperMini" form factor). Tiny, cheap.
+* **The Brain (Commander):** **ESP32-S3 Mini** with **External Antenna** (IPEX/uFL connector) for range reliability.
+* **The Power:** **14500 Li-Ion Battery (3.7V)**.
+    * *Spec:* **Pre-wired / No Connector** (Saves space vs battery holder).
+    * *Capacity:* ~500mAh (good for 1-1.5hrs).
+    * *Warning:* Do not use 18650s (too big) or Coin Cells (too weak).
+* **The Charging:** **TP4057 Module** (USB-C).
+    * *Why:* Smaller than TP4056, has reverse polarity protection.
+    * *Critical:* Must use **500mA version** (or swap resistor) to prevent overheating the battery.
+* **The Light:** **WS2812B LED Strip (144 LEDs/m)**.
+    * *Spec:* **IP30** (Non-waterproof). Cut into small segments to wrap around the core.
+* **The Shell:** 3D Printed **TPU (95A)**. Transparent/Clear. 0% Walls, Gyroid Infill for diffusion.
 
-## Phase 2: The Hardware
-* **Microcontroller:** Seeed Studio XIAO ESP32-C3 (Tiny, battery charge support).
-* **Protocol:** **ESP-NOW**. 
-    * *Topology:* PC -> Serial -> Bridge Dongle -> Wireless Broadcast -> Balls.
-    * *Why:* "Connectionless" Wi-Fi. Lower latency than Bluetooth, simpler than standard Wi-Fi.
-* **Power:** 14500 Li-Ion (AA size, 3.7V). Center-mounted for weight balance.
-* **Shell:** Bambu P1S printed TPU. 0% walls, 15% Gyroid infill for diffusion and durability.
+### The Software (MVP)
+* **Language:** Python (for the desktop sequencer).
+* **Video POC:** Use OpenCV to track colored "proxy" balls in a video and overlay digital effects to test the concept before buying hardware.
 
 # 🚧 Blockers & Next Steps
-* [ ] **Constraint:** Currently in "saving mode" (Budget: $0). Focus on Phase 1.
-* [ ] **Action:** 3D print 3 "proxy balls" in matte PLA (Red, Green, Blue) weighted to match final hardware.
-* [ ] **Action:** Record 10s test video.
+* [ ] **Financial:** Waiting for budget to replenish (~$100 target).
+* [ ] **Action:** Build the "Video POC" (Computer Vision version) first since it costs $0.
